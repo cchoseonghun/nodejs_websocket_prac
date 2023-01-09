@@ -1,39 +1,49 @@
-<!-- 메시지 폼 -->
-<form name="publish">
-  <input type="text" name="message" />
-  <input type="submit" value="send" />
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!-- 메시지 폼 -->
+  <input id="message" type="text"/>
+  <button id="send">send</button>
 
-<script>
-  let url = 'ws://localhost:8080/ws';
-  let socket = new WebSocket(url);
+  <!-- 수신받을 메시지가 노출될 div -->
+  <div id="messages"></div>
 
-  // document.forms.publish.onsubmit = () => {  // 함수 내부에서의 this 사용으로 arrow fn은 사용 불가지만 사용 가능하게 수정 예정
-  document.forms.publish.onsubmit = function() {
-    let outgoingMessage = this.message.value;
-    const obj = { type: 'messages', params: { value: outgoingMessage } };
-    socket.send(JSON.stringify(obj));
-    return false;
-  };
+  <script>
+    let url = 'ws://localhost:8080/ws';
+    let socket = new WebSocket(url);
 
-  // 들어오는 메시지 핸들링
-  socket.onmessage = (e) => {
-    let incomingMessage = e.data;
-    showMessage(incomingMessage);
-  };
+    document.querySelector('#send').addEventListener('click', () => {
+      let outgoingMessage = document.querySelector('#message').value;
+      const obj = { type: 'message', params: { value: outgoingMessage } };
+      socket.send(JSON.stringify(obj));
 
-  socket.onclose = (e) => {
-    return console.log(`Closed ${e.code}`);
-  };
+      document.querySelector('#message').value = '';
+      document.querySelector('#message').focus();
+    })
 
-  // dev에 메시지 더하기
-  const showMessage = (message) => {
-    let messageElem = document.createElement('div');
-    const obj = JSON.parse(message);
-    messageElem.textContent = obj.params.value;
-    document.querySelector('#messages').prepend(messageElem);
-  }
-</script>
+    // 들어오는 메시지 핸들링
+    socket.onmessage = (e) => {
+      const incomingMessage = e.data;
+      showMessage(incomingMessage);
+    };
 
-<!-- 수신받을 메시지가 노출될 div -->
-<div id="messages"></div>
+    // div에 메시지 더하기
+    const showMessage = (message) => {
+      const obj = JSON.parse(message);
+      const div = document.createElement('div');
+      div.textContent = obj.params.value;
+      document.querySelector('#messages').prepend(div);
+    };
+
+    socket.onclose = (e) => {
+      return console.log(`Closed ${e.code}`);
+    };
+  </script>
+</body>
+</html>

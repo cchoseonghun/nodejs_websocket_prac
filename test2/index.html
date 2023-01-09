@@ -1,0 +1,39 @@
+<!-- 메시지 폼 -->
+<form name="publish">
+  <input type="text" name="message" />
+  <input type="submit" value="send" />
+</form>
+
+<script>
+  let url = 'ws://localhost:8080/ws';
+  let socket = new WebSocket(url);
+
+  // document.forms.publish.onsubmit = () => {  // 함수 내부에서의 this 사용으로 arrow fn은 사용 불가지만 사용 가능하게 수정 예정
+  document.forms.publish.onsubmit = function() {
+    let outgoingMessage = this.message.value;
+    const obj = { type: 'messages', params: { value: outgoingMessage } };
+    socket.send(JSON.stringify(obj));
+    return false;
+  };
+
+  // 들어오는 메시지 핸들링
+  socket.onmessage = (e) => {
+    let incomingMessage = e.data;
+    showMessage(incomingMessage);
+  };
+
+  socket.onclose = (e) => {
+    return console.log(`Closed ${e.code}`);
+  };
+
+  // dev에 메시지 더하기
+  const showMessage = (message) => {
+    let messageElem = document.createElement('div');
+    const obj = JSON.parse(message);
+    messageElem.textContent = obj.params.value;
+    document.querySelector('#messages').prepend(messageElem);
+  }
+</script>
+
+<!-- 수신받을 메시지가 노출될 div -->
+<div id="messages"></div>

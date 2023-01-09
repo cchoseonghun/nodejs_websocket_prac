@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="create()">Create</button>
+    <input type="text" name="room-code" id="room-code" />
+    <button onclick="join()">Join</button>
+    <button onclick="leave()">Leave</button>
+    <p><b id="last-msg"></b></p>
+    <script>
+      const ws = new WebSocket('ws://localhost:8005'); // 웹소켓 준비
+
+      ws.onopen = function (event) {
+        // 이벤트
+      };
+
+      ws.onmessage = function (event) {
+        console.log(event.data);
+        document.getElementById('last-msg').innerText = event.data;
+        let messageElem = document.createElement('div'); // 폼에 메시지 붙여주기
+        // messageElem.textContent = event.data;
+        messageElem.innerHTML = event.data;
+        // document.getElementById('messages').prepend(messageElem);
+        document.querySelector('#messages').prepend(messageElem);
+      };
+
+      function create() {
+        ws.send('{ "type": "create" }'); // 방을 제작하는 코드
+      }
+
+      function join() {
+        const code = document.getElementById('room-code').value;
+        const obj = { type: 'join', params: { code: code } }; // 방 code로 해당 방에 들어간다.
+        ws.send(JSON.stringify(obj));
+      }
+
+      function leave() {
+        const code = document.getElementById('room-code').value;
+        const obj = { type: 'leave', params: { code: code } }; // 해당 방을 나온다.
+        ws.send(JSON.stringify(obj));
+      }
+    </script>
+
+    <div id="messages"></div>
+  </body>
+</html>

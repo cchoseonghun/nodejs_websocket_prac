@@ -5,45 +5,49 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="icon" href="data:," />
 </head>
 <body>
-  <!-- 메시지 폼 -->
+  <!-- 전송 -->
+  <div>접속자: <span id="online">0</span></div>
   <input id="message" type="text"/>
   <button id="send">send</button>
-
-  <!-- 수신받을 메시지가 노출될 div -->
+  <!-- 수신 -->
   <div id="messages"></div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
-    let url = 'ws://localhost:8080/ws';
-    let socket = new WebSocket(url);
+    const socket = io();
+
+    socket.on('usercount', (count) => {
+      // console.log(`현재 ${count}명이 서버에 접속해있습니다.`);
+      document.querySelector('#online').innerHTML = count;
+    });
 
     document.querySelector('#send').addEventListener('click', () => {
       let outgoingMessage = document.querySelector('#message').value;
       const obj = { type: 'message', params: { value: outgoingMessage } };
-      socket.send(JSON.stringify(obj));
+      socket.emit('message', JSON.stringify(obj));
 
       document.querySelector('#message').value = '';
       document.querySelector('#message').focus();
+    })
+
+    socket.on('message', (data) => {
+      const incomingMessage = data;
+      showMessage(incomingMessage);
     });
 
-    // 들어오는 메시지 핸들링
-    socket.onmessage = (e) => {
-      const incomingMessage = e.data;
-      showMessage(incomingMessage);
-    };
-
-    // div에 메시지 더하기
-    const showMessage = (message) => {
+    function showMessage(message) {
       const obj = JSON.parse(message);
       const div = document.createElement('div');
-      div.textContent = obj.params.value;
+      div.innerHTML = obj.params.value;
       document.querySelector('#messages').prepend(div);
-    };
+    }
 
-    socket.onclose = (e) => {
-      return console.log(`Closed ${e.code}`);
-    };
+    socket.on('close', (e) => {
+      console.log(`Closed ${e.code}`);
+    });
   </script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 const WebSocket = require('ws'); // 웹소켓
 const DB = require('./db.js'); // DB 관련 내용 쓰는 함수 예시
-const CREATE = require('./create.js'); // 방이 만들어졌을 때 하는 클래스
 const db = new DB(); // DB 객체를 만든다.
+
+const CREATE = require('./create.js'); // 방이 만들어졌을 때 하는 클래스
 
 const wss = new WebSocket.Server({ port: 8005 });
 

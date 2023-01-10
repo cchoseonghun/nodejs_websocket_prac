@@ -16,7 +16,7 @@ wss.on('connection', function connection(ws) {
   ws.user = genKey(5); // 임시적으로 유저의 이름을 할당 시켜준다.
 
   var create = new CREATE(); // 방 생성 객체를 new로 선언
-  console.log(ws.user);
+  console.log('user: ', ws.user);
 
   ws.on('message', function message(data) {
     console.log(JSON.parse(data)); // 들어온 메시지를 로그로 확인
@@ -41,6 +41,16 @@ wss.on('connection', function connection(ws) {
     }
   });
 
+  // function create(params) {
+  //   // 분리하기 전에 임시로 방 이름 할당하고 생성. 예제 3 로직에선 없어도 되는 함수
+  //   const room = genKey(5);
+  //   console.log('room id: ', room);
+  //   rooms[room] = [ws];
+  //   ws['room'] = room;
+
+  //   generalInformation(ws);
+  // }
+
   function generalInformation(ws) {
     let obj;
     if (ws['room'] != undefined) {
@@ -59,18 +69,7 @@ wss.on('connection', function connection(ws) {
         },
       };
     }
-
     ws.send(JSON.stringify(obj));
-  }
-
-  function create(params) {
-    // 분리하기 전에 임시로 방 이름 할당하고 생성. 예제 3 로직에선 없어도 되는 함수
-    const room = genKey(5);
-    console.log('room id: ', room);
-    rooms[room] = [ws];
-    ws['room'] = room;
-
-    generalInformation(ws);
   }
 
   function genKey(length) {
@@ -122,8 +121,7 @@ wss.on('connection', function connection(ws) {
   }
 
   function leave(params) {
-    // 방을 나갈 경우
-    const room = ws.room;
+      const room = ws.room;
 
     if (rooms[room].length > 0) {
       rooms[room] = rooms[room].filter((so) => so !== ws);

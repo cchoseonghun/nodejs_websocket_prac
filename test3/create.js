@@ -8,30 +8,6 @@ CREATE.prototype.LogMsg = function () {
   console.log('CREATEConnect'); // 방의 메시지
 };
 
-CREATE.prototype.generalInformation = function (ws, rooms) {
-  let obj;
-  if (ws['room'] != undefined) {
-    // ws 배열에 방이 있을 경우 진입한다.
-    obj = {
-      type: 'info',
-      params: {
-        room: ws['room'],
-        'no-clients': rooms[ws['room']].length,
-      },
-    };
-  } else {
-    // 방이 없다.
-    obj = {
-      type: 'info',
-      params: {
-        room: 'no room',
-      },
-    };
-  }
-
-  ws.send(JSON.stringify(obj)); // 클라이언트에 전달한다.
-};
-
 CREATE.prototype.create = function (params, rooms, ws, db) {
   // 생성 되었을 때 함수
   const room = this.genKey(5); // 랜덤으로 방 이름을 지정해주는 함수
@@ -53,6 +29,29 @@ CREATE.prototype.genKey = function (length) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
+};
+
+CREATE.prototype.generalInformation = function (ws, rooms) {
+  let obj;
+  if (ws['room'] != undefined) {
+    // ws 배열에 방이 있을 경우 진입한다.
+    obj = {
+      type: 'info',
+      params: {
+        room: ws['room'],
+        'no-clients': rooms[ws['room']].length,
+      },
+    };
+  } else {
+    // 방이 없다.
+    obj = {
+      type: 'info',
+      params: {
+        room: 'no room',
+      },
+    };
+  }
+  ws.send(JSON.stringify(obj)); // 클라이언트에 전달한다.
 };
 
 module.exports = CREATE;
